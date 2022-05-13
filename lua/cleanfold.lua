@@ -19,14 +19,6 @@ local function mangle_line(line)
     line = fn.substitute(line, commentstring..'\\(.*\\)\\zs'..marker, '\1', 'g')
   end
 
-  if commentstring ~= '' then
-    -- Remove commentstring if there is only whitespace before it.
-    line = fn.substitute(line, '^\\s*'..commentstring, '', 'g')
-  end
-
-  -- Remove leading whitespace
-  line = line:gsub('^%s+', '')
-
   if vim.bo.filetype == 'scala' then
     -- Remove any text after the return type of a def
     line = fn.substitute(line, [[\({\|=\).\{-}$]] , '', 'g')
@@ -45,20 +37,10 @@ function M.foldtext()
 
   local line = mangle_line(getline(fs))
   local fold_size = fe - fs + 1
-  local indent = vim.bo.shiftwidth * (vim.v.foldlevel - 1)
-
-  local padding =
-    api.nvim_win_get_width(0) -
-    get_gutter_width() -
-    #line -
-    #tostring(fold_size) -
-    indent -
-    1
 
   return
-    string.rep(' ', indent)..
     line..
-    string.rep(' ', padding)..
+    ' '..
     fold_size..
     ' '
 end
